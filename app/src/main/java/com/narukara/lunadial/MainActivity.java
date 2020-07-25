@@ -28,13 +28,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        penInit();
-        Sandglass.reload();
-        reloadID();
+        try {
+            penInit();
+            Sandglass.reload();
+            reloadID();
+        } catch (IOException e) {
+            Snackbar.make(findViewById(R.id.bg), Tools.notNullMessage(e.getMessage()), Snackbar.LENGTH_LONG).show();
+        }
         setTimer();
     }
 
-    private void reloadID() {
+    private void reloadID() throws IOException {
         String string = Pen.read(Pen.cache, "id");
         if (string == null) {
             id = -1;
@@ -43,15 +47,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void penInit() {
+    private void penInit() throws IOException {
         Pen.cache = new File(getCacheDir(), "cache");
         Pen.fileDir = getFilesDir();
-        try {
-            if (!Pen.cache.exists()) {
-                Pen.cache.createNewFile();
-            }
-        } catch (IOException e) {
-            Snackbar.make(findViewById(R.id.bg), "初始化缓存失败！", Snackbar.LENGTH_LONG);
+        if (!Pen.cache.exists()) {
+            Pen.cache.createNewFile();
         }
     }
 
@@ -101,13 +101,17 @@ public class MainActivity extends AppCompatActivity {
                                 timer.cancel();
                             }
                             ((TextView) findViewById(R.id.textView)).setText(getString(R.string.app_name));
-                            long time = Sandglass.end();
-                            Recorder.commit(id, time);
+                            try {
+                                long time = Sandglass.end();
+                                Recorder.commit(id, time);
+                                Pen.write(Pen.cache, "id", "-1");
+                            } catch (Exception e) {
+                                Snackbar.make(findViewById(R.id.bg), Tools.notNullMessage(e.getMessage()), Snackbar.LENGTH_LONG).show();
+                            }
                             id = -1;
-                            Pen.write(Pen.cache, "id", "-1");
                             break;
                         case R.id.stat:
-                            Snackbar.make(findViewById(R.id.bg), "开发中", Snackbar.LENGTH_LONG);
+                            Snackbar.make(findViewById(R.id.bg), "开发中", Snackbar.LENGTH_LONG).show();
                             stat();
                             break;
                     }
@@ -136,7 +140,11 @@ public class MainActivity extends AppCompatActivity {
                                             popupMenu2.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                                                 @Override
                                                 public boolean onMenuItemClick(MenuItem item) {
-                                                    Sandglass.start();
+                                                    try {
+                                                        Sandglass.start();
+                                                    } catch (Exception e) {
+                                                        Snackbar.make(findViewById(R.id.bg), Tools.notNullMessage(e.getMessage()), Snackbar.LENGTH_LONG).show();
+                                                    }
                                                     switch (item.getItemId()) {
                                                         case R.id.sleep:
                                                             id = Acts.SLEEP;
@@ -161,7 +169,11 @@ public class MainActivity extends AppCompatActivity {
                                             popupMenu3.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                                                 @Override
                                                 public boolean onMenuItemClick(MenuItem item) {
-                                                    Sandglass.start();
+                                                    try {
+                                                        Sandglass.start();
+                                                    } catch (Exception e) {
+                                                        Snackbar.make(findViewById(R.id.bg), Tools.notNullMessage(e.getMessage()), Snackbar.LENGTH_LONG).show();
+                                                    }
                                                     switch (item.getItemId()) {
                                                         case R.id.study:
                                                             id = Acts.STUDY;
@@ -186,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
                             popupMenu1.show();
                             break;
                         case R.id.stat:
-                            Snackbar.make(findViewById(R.id.bg), "开发中", Snackbar.LENGTH_LONG);
+                            Snackbar.make(findViewById(R.id.bg), "开发中", Snackbar.LENGTH_LONG).show();
                             stat();
                             break;
                     }
@@ -202,7 +214,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void prepare() {
-        Pen.write(Pen.cache, "id", String.valueOf(id));
+        try {
+            Pen.write(Pen.cache, "id", String.valueOf(id));
+        } catch (IOException e) {
+            Snackbar.make(findViewById(R.id.bg), Tools.notNullMessage(e.getMessage()), Snackbar.LENGTH_LONG).show();
+        }
         refresh();
     }
 

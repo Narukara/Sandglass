@@ -12,45 +12,42 @@ public abstract class Pen {
     public static File fileDir;
     public static File cache;
 
-    public static String read(File file, String key) {
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-            while (true) {
-                String tempString = bufferedReader.readLine();
-                if (tempString == null) {
-                    bufferedReader.close();
-                    return null;
-                }
-                if (tempString.substring(0, tempString.indexOf(":")).equals(key)) {
-                    bufferedReader.close();
-                    return tempString.substring(tempString.indexOf(":") + 1);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+    public static String read(File file, String key) throws IOException {
+        if (!file.exists()) {
+            return null;
         }
-        return null;
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+        while (true) {
+            String tempString = bufferedReader.readLine();
+            if (tempString == null) {
+                bufferedReader.close();
+                return null;
+            }
+            if (tempString.substring(0, tempString.indexOf(":")).equals(key)) {
+                bufferedReader.close();
+                return tempString.substring(tempString.indexOf(":") + 1);
+            }
+        }
     }
 
-    public static void write(File file, String key, String value) {
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-            StringBuilder stringBuilder = new StringBuilder(key + ":" + value + "\r\n");
-            while (true) {
-                String tempString = bufferedReader.readLine();
-                if (tempString == null) {
-                    bufferedReader.close();
-                    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, false));
-                    bufferedWriter.write(stringBuilder.toString());
-                    bufferedWriter.close();
-                    break;
-                }
-                if (!tempString.substring(0, tempString.indexOf(":")).equals(key)) {
-                    stringBuilder.append(tempString + "\r\n");
-                }
+    public static void write(File file, String key, String value) throws IOException {
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+        StringBuilder stringBuilder = new StringBuilder(key + ":" + value + "\r\n");
+        while (true) {
+            String tempString = bufferedReader.readLine();
+            if (tempString == null) {
+                bufferedReader.close();
+                BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, false));
+                bufferedWriter.write(stringBuilder.toString());
+                bufferedWriter.close();
+                break;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            if (!tempString.substring(0, tempString.indexOf(":")).equals(key)) {
+                stringBuilder.append(tempString).append("\r\n");
+            }
         }
     }
 }

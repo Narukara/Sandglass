@@ -1,14 +1,19 @@
 package com.narukara.lunadial;
 
-public abstract class Sandglass {
-    private static long beginTime, endTime;
+import java.io.IOException;
 
-    public static void start() {
+public abstract class Sandglass {
+    private static long beginTime;
+
+    public static void start() throws Exception {
+        if (beginTime != -1) {
+            throw new Exception("invalid beginTime");
+        }
         beginTime = System.currentTimeMillis();
         Pen.write(Pen.cache, "beginTime", String.valueOf(beginTime));
     }
 
-    public static void reload() {
+    public static void reload() throws IOException {
         String string = Pen.read(Pen.cache, "beginTime");
         if (string == null) {
             beginTime = -1;
@@ -28,12 +33,13 @@ public abstract class Sandglass {
         return HHMM;
     }
 
-    public static long end() {
-        endTime = System.currentTimeMillis();
-        if(beginTime == -1){
-            return 0;
+    public static long end() throws Exception {
+        long endTime = System.currentTimeMillis();
+        if (beginTime == -1) {
+            throw new Exception("invalid beginTime");
         }
         Pen.write(Pen.cache, "beginTime", "-1");
+        beginTime = -1;
         return (endTime - beginTime) / 1000;
     }
 }

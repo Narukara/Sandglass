@@ -8,10 +8,10 @@ public abstract class Acts {
     public final static int FUN = 4;
     public final static int OTHER = 5;
 
-    private final static String[] ActName = {"睡眠","就餐","卫生","学习","娱乐","其他"};
+    private final static String[] ActName = {"就寝", "就餐", "卫生", "学习", "娱乐", "其他"};
 
-    public static String getActName(int id){
-        if(id == -1){
+    public static String getActName(int id) {
+        if (id == -1) {
             return "ID error";
         }
         return ActName[id];
