@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Sandglass</string>
+    <string name="start">开始</string>
+    <string name="stat">统计</string>
+    <string name="end">结束</string>
+    <string name="stable">固有</string>
+    <string name="act">活动</string>
+    <string name="sleep">就寝</string>
+    <string name="eat">就餐</string>
+    <string name="clean">卫生</string>
+    <string name="study">学习</string>
+    <string name="fun">娱乐</string>
+    <string name="other">其他</string>
+</resources>
