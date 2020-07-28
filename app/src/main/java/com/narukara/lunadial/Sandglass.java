@@ -38,8 +38,9 @@ public abstract class Sandglass {
         if (beginTime == -1) {
             throw new Exception("invalid beginTime");
         }
+        long duration = (endTime - beginTime) / 1000;
         Pen.write(Pen.cache, "beginTime", "-1");
         beginTime = -1;
-        return (endTime - beginTime) / 1000;
+        return (duration / 60) + ((duration % 60 > 29) ? 1 : 0);
     }
 }
