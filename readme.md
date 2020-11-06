@@ -6,8 +6,12 @@
 
 新添加了notification，主要是因为经常会忘了记录
 
+icon 来自 https://www.pixiv.net/artworks/74542813
+
 ---
 
 <img src="D:\Narukara\project\Android\LunaDial\readme.assets\day.png" alt="day" style="zoom:50%;" />
 
 <img src="D:\Narukara\project\Android\LunaDial\readme.assets\night.png" alt="night" style="zoom:50%;" />
+
+
