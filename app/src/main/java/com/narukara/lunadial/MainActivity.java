@@ -1,11 +1,16 @@
 package com.narukara.lunadial;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.os.Build;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.FileProvider;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -17,14 +22,12 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.TimeZone;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 public class MainActivity extends AppCompatActivity {
     private int id;
     private Timer timer = null;
+    private static final String channelID = "Sandglass";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +41,55 @@ public class MainActivity extends AppCompatActivity {
             Snackbar.make(findViewById(R.id.bg), Tools.notNullMessage(e.getMessage()), Snackbar.LENGTH_LONG).show();
         }
         setTimer();
+        createNotificationChannel();
+        sendNotification();
     }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(channelID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    private void sendNotification() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelID)
+                .setSmallIcon(R.drawable.smallicon)
+                .setContentTitle("Sandglass")
+                .setContentText("~ forget-me-not ~")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(PendingIntent.getActivity(this, 0, intent, 0))
+                .setAutoCancel(true);
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        try {
+            String notificationID = Pen.read(Pen.cache, "notificationID");
+            int notificationIDNum;
+            if (notificationID == null) {
+                notificationIDNum = 0;
+            } else {
+                notificationIDNum = Integer.parseInt(notificationID);
+                if (notificationIDNum == Integer.MAX_VALUE) {
+                    notificationIDNum = 0;
+                }
+            }
+            notificationManager.notify(notificationIDNum + 1, builder.build());
+            Pen.write(Pen.cache, "notificationID", String.valueOf(notificationIDNum + 1));
+        } catch (IOException e) {
+            Snackbar.make(findViewById(R.id.bg), Tools.notNullMessage(e.getMessage()), Snackbar.LENGTH_LONG).show();
+        }
+    }
+
 
     private void reloadID() throws IOException {
         String string = Pen.read(Pen.cache, "id");
@@ -216,7 +267,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void refresh() {
         timer = new Timer();
-        final TextView textView = ((TextView) findViewById(R.id.textView));
+        final TextView textView = findViewById(R.id.textView);
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
