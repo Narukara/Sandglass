@@ -40,9 +40,24 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             Snackbar.make(findViewById(R.id.bg), Tools.notNullMessage(e.getMessage()), Snackbar.LENGTH_LONG).show();
         }
-        setTimer();
         createNotificationChannel();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.cancel(1);
+        setBackground();
+        setTimer();
+    }
+
+    @Override
+    protected void onStop() {
+        timer.cancel();
+        timer = null;
         sendNotification();
+        super.onStop();
     }
 
     private void createNotificationChannel() {
@@ -66,28 +81,13 @@ public class MainActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelID)
                 .setSmallIcon(R.drawable.smallicon)
-                .setContentTitle("Sandglass")
+                .setContentTitle((id == -1) ? "Sandglass" : Acts.getActName(id))
                 .setContentText("~ forget-me-not ~")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(PendingIntent.getActivity(this, 0, intent, 0))
-                .setAutoCancel(true);
+                .setOngoing(true);
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        try {
-            String notificationID = Pen.read(Pen.cache, "notificationID");
-            int notificationIDNum;
-            if (notificationID == null) {
-                notificationIDNum = 0;
-            } else {
-                notificationIDNum = Integer.parseInt(notificationID);
-                if (notificationIDNum == Integer.MAX_VALUE) {
-                    notificationIDNum = 0;
-                }
-            }
-            notificationManager.notify(notificationIDNum + 1, builder.build());
-            Pen.write(Pen.cache, "notificationID", String.valueOf(notificationIDNum + 1));
-        } catch (IOException e) {
-            Snackbar.make(findViewById(R.id.bg), Tools.notNullMessage(e.getMessage()), Snackbar.LENGTH_LONG).show();
-        }
+        notificationManager.notify(1, builder.build());
     }
 
 
@@ -112,12 +112,6 @@ public class MainActivity extends AppCompatActivity {
         if (id != -1 && timer == null) {
             refresh();
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        setBackground();
     }
 
     private void setBackground() {
