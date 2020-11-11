@@ -10,8 +10,8 @@ icon 来自 https://www.pixiv.net/artworks/74542813
 
 ---
 
-<img src="D:\Narukara\project\Android\LunaDial\readme.assets\day.png" alt="day" style="zoom:50%;" />
+![day](readme.assets\day.png)
 
-<img src="D:\Narukara\project\Android\LunaDial\readme.assets\night.png" alt="night" style="zoom:50%;" />
+![night](readme.assets\night.png)
 
 
