@@ -1,2 +1,3 @@
+include ':nknk'
 include ':app'
 rootProject.name = "Luna Dial"

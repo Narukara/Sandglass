@@ -54,8 +54,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-        timer.cancel();
-        timer = null;
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
         sendNotification();
         super.onStop();
     }
