@@ -16,4 +16,8 @@ public abstract class Acts {
         }
         return ActName[id];
     }
+
+    public static boolean isIDValid(int id) {
+        return id >= 0 && id <= 5;
+    }
 }

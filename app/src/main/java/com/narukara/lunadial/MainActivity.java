@@ -9,7 +9,6 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.FileProvider;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -25,7 +24,6 @@ import java.io.IOException;
 import java.util.*;
 
 public class MainActivity extends AppCompatActivity {
-    private int id;
     private Timer timer = null;
     private static final String channelID = "Sandglass";
 
@@ -36,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
         try {
             penInit();
             Sandglass.reload();
-            reloadID();
         } catch (IOException e) {
             Snackbar.make(findViewById(R.id.bg), Tools.notNullMessage(e.getMessage()), Snackbar.LENGTH_LONG).show();
         }
@@ -54,10 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
-        }
+        stopTimer();
         sendNotification();
         super.onStop();
     }
@@ -83,23 +77,13 @@ public class MainActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelID)
                 .setSmallIcon(R.drawable.smallicon)
-                .setContentTitle((id == -1) ? "Sandglass" : Acts.getActName(id))
+                .setContentTitle(Sandglass.isRunning() ? Acts.getActName(Sandglass.getID()) : getString(R.string.app_name))
                 .setContentText("~ forget-me-not ~")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(PendingIntent.getActivity(this, 0, intent, 0))
                 .setOngoing(true);
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         notificationManager.notify(1, builder.build());
-    }
-
-
-    private void reloadID() throws IOException {
-        String string = Pen.read(Pen.cache, "id");
-        if (string == null) {
-            id = -1;
-        } else {
-            id = Integer.parseInt(string);
-        }
     }
 
     private void penInit() throws IOException {
@@ -111,8 +95,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setTimer() {
-        if (id != -1 && timer == null) {
-            refresh();
+        if (Sandglass.isRunning() && timer == null) {
+            timer = new Timer();
+            ((TextView) findViewById(R.id.IDView)).setText(Acts.getActName(Sandglass.getID()));
+            final TextView timeView = findViewById(R.id.TimeView);
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    timeView.post(() -> {
+                        int[] duration = Sandglass.getDuration();
+                        String string = duration[0] + "h " + duration[1] + "min";
+                        timeView.setText(string);
+                    });
+                }
+            }, 0, 10 * 1000);
+        }
+    }
+
+    private void stopTimer() {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
         }
     }
 
@@ -134,114 +137,60 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void end() {
+        stopTimer();
+        ((TextView) findViewById(R.id.IDView)).setText(getString(R.string.app_name));
+        ((TextView) findViewById(R.id.TimeView)).setText("");
+        try {
+            Sandglass.end();
+        } catch (Exception e) {
+            Snackbar.make(findViewById(R.id.bg), Tools.notNullMessage(e.getMessage()), Snackbar.LENGTH_LONG).show();
+        }
+    }
 
     public void fab(final View view) {
-        final Context context = this;
-        PopupMenu popupMenu = new PopupMenu(this, view);
-        if (id != -1) {
-            //end or stat
-            popupMenu.getMenuInflater().inflate(R.menu.endmenu, popupMenu.getMenu());
-            popupMenu.setOnMenuItemClickListener(item -> {
-                switch (item.getItemId()) {
-                    case R.id.end:
-                        if (timer != null) {
-                            timer.cancel();
-                        }
-                        ((TextView) findViewById(R.id.textView)).setText(getString(R.string.app_name));
-                        try {
-                            Pen.write(Pen.cache, "id", "-1");
-                            Recorder.commit(id, Sandglass.end());
-                        } catch (Exception e) {
-                            Snackbar.make(findViewById(R.id.bg), Tools.notNullMessage(e.getMessage()), Snackbar.LENGTH_LONG).show();
-                        }
-                        id = -1;
-                        break;
-                    case R.id.stat:
-                        stat();
-                        break;
-                }
-                return false;
-            });
-        } else {
-            //start or stat
-            popupMenu.getMenuInflater().inflate(R.menu.startmenu, popupMenu.getMenu());
-            popupMenu.setOnMenuItemClickListener(item -> {
-                switch (item.getItemId()) {
-                    case R.id.start:
-                        //stable or act
-                        PopupMenu popupMenu1 = new PopupMenu(context, view);
-                        popupMenu1.getMenuInflater().inflate(R.menu.menu1, popupMenu1.getMenu());
-                        popupMenu1.setOnMenuItemClickListener(item1 -> {
-                            switch (item1.getItemId()) {
-                                case R.id.stable:
-                                    //in stable
-                                    PopupMenu popupMenu2 = new PopupMenu(context, view);
-                                    popupMenu2.getMenuInflater().inflate(R.menu.menus, popupMenu2.getMenu());
-                                    popupMenu2.setOnMenuItemClickListener(item11 -> {
-                                        try {
-                                            Sandglass.start();
-                                        } catch (Exception e) {
-                                            Snackbar.make(findViewById(R.id.bg), Tools.notNullMessage(e.getMessage()), Snackbar.LENGTH_LONG).show();
-                                        }
-                                        switch (item11.getItemId()) {
-                                            case R.id.sleep:
-                                                id = Acts.SLEEP;
-                                                break;
-                                            case R.id.eat:
-                                                id = Acts.EAT;
-                                                break;
-                                            case R.id.clean:
-                                                id = Acts.CLEAN;
-                                                break;
-                                        }
-                                        prepare();
-                                        return false;
-                                    });
-                                    popupMenu2.show();
-                                    break;
-                                case R.id.act:
-                                    //in act
-                                    PopupMenu popupMenu3 = new PopupMenu(context, view);
-                                    popupMenu3.getMenuInflater().inflate(R.menu.menua, popupMenu3.getMenu());
-                                    popupMenu3.setOnMenuItemClickListener(item112 -> {
-                                        try {
-                                            Sandglass.start();
-                                        } catch (Exception e) {
-                                            Snackbar.make(findViewById(R.id.bg), Tools.notNullMessage(e.getMessage()), Snackbar.LENGTH_LONG).show();
-                                        }
-                                        switch (item112.getItemId()) {
-                                            case R.id.study:
-                                                id = Acts.STUDY;
-                                                break;
-                                            case R.id.fun:
-                                                id = Acts.FUN;
-                                                break;
-                                            case R.id.other:
-                                                id = Acts.OTHER;
-                                                break;
-                                        }
-                                        prepare();
-                                        return false;
-                                    });
-                                    popupMenu3.show();
-                                    break;
-                            }
-                            return false;
-                        });
-                        popupMenu1.show();
-                        break;
-                    case R.id.stat:
-                        stat();
-                        break;
-                }
-                return false;
-            });
+        if (Sandglass.isRunning()) {
+            end();
         }
+        PopupMenu popupMenu = new PopupMenu(this, view);
+        popupMenu.getMenuInflater().inflate(R.menu.startmenu, popupMenu.getMenu());
+        popupMenu.setOnMenuItemClickListener(item -> {
+            int id;
+            switch (item.getItemId()) {
+                case R.id.sleep:
+                    id = Acts.SLEEP;
+                    break;
+                case R.id.eat:
+                    id = Acts.EAT;
+                    break;
+                case R.id.clean:
+                    id = Acts.CLEAN;
+                    break;
+                case R.id.study:
+                    id = Acts.STUDY;
+                    break;
+                case R.id.fun:
+                    id = Acts.FUN;
+                    break;
+                case R.id.other:
+                    id = Acts.OTHER;
+                    break;
+                default:
+                    id = -1;
+            }
+            try {
+                Sandglass.start(id);
+                setTimer();
+            } catch (Exception e) {
+                Snackbar.make(findViewById(R.id.bg), Tools.notNullMessage(e.getMessage()), Snackbar.LENGTH_LONG).show();
+            }
+            return false;
+        });
         popupMenu.show();
     }
 
     private void stat() {
-        File file = new File(Pen.fileDir, Recorder.getYear() + ".xls");
+        File file = new File(Pen.fileDir, Tools.getYear() + ".xls");
         if (!file.exists()) {
             Snackbar.make(findViewById(R.id.bg), "暂无统计信息", Snackbar.LENGTH_LONG).show();
             return;
@@ -252,27 +201,61 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void prepare() {
-        try {
-            Pen.write(Pen.cache, "id", String.valueOf(id));
-        } catch (IOException e) {
-            Snackbar.make(findViewById(R.id.bg), Tools.notNullMessage(e.getMessage()), Snackbar.LENGTH_LONG).show();
+    public void changeID(View view) {
+        if (!Sandglass.isRunning()) {
+            return;
         }
-        refresh();
+        PopupMenu popupMenu = new PopupMenu(this, view);
+        popupMenu.getMenuInflater().inflate(R.menu.startmenu, popupMenu.getMenu());
+        popupMenu.setOnMenuItemClickListener(item -> {
+            int id;
+            switch (item.getItemId()) {
+                case R.id.sleep:
+                    id = Acts.SLEEP;
+                    break;
+                case R.id.eat:
+                    id = Acts.EAT;
+                    break;
+                case R.id.clean:
+                    id = Acts.CLEAN;
+                    break;
+                case R.id.study:
+                    id = Acts.STUDY;
+                    break;
+                case R.id.fun:
+                    id = Acts.FUN;
+                    break;
+                case R.id.other:
+                    id = Acts.OTHER;
+                    break;
+                default:
+                    id = -1;
+            }
+            try {
+                Sandglass.changeID(id);
+                ((TextView) findViewById(R.id.IDView)).setText(Acts.getActName(Sandglass.getID()));
+            } catch (Exception e) {
+                Snackbar.make(findViewById(R.id.bg), Tools.notNullMessage(e.getMessage()), Snackbar.LENGTH_LONG).show();
+            }
+            return false;
+        });
+        popupMenu.show();
     }
 
-    private void refresh() {
-        timer = new Timer();
-        final TextView textView = findViewById(R.id.textView);
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                textView.post(() -> {
-                    int[] duration = Sandglass.getDuration();
-                    String string = Acts.getActName(id) + "\r\n" + duration[0] + "h " + duration[1] + "min";
-                    textView.setText(string);
-                });
+    public void dotsMenu(View view) {
+        PopupMenu popupMenu = new PopupMenu(this, view);
+        popupMenu.getMenuInflater().inflate(R.menu.dotsmenu, popupMenu.getMenu());
+        popupMenu.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.stat:
+                    stat();
+                    break;
+                case R.id.about:
+                    Snackbar.make(findViewById(R.id.bg), "Hello! Sandglass 1.5.0 beta", Snackbar.LENGTH_LONG).show();
+                    break;
             }
-        }, 0, 10 * 1000);
+            return false;
+        });
+        popupMenu.show();
     }
 }

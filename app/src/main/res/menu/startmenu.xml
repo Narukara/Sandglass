@@ -2,9 +2,21 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/start"
-        android:title="@string/start" />
+        android:id="@+id/sleep"
+        android:title="@string/sleep" />
     <item
-        android:id="@+id/stat"
-        android:title="@string/stat" />
+        android:id="@+id/eat"
+        android:title="@string/eat" />
+    <item
+        android:id="@+id/clean"
+        android:title="@string/clean" />
+    <item
+        android:id="@+id/study"
+        android:title="@string/study" />
+    <item
+        android:id="@+id/fun"
+        android:title="@string/fun" />
+    <item
+        android:id="@+id/other"
+        android:title="@string/other" />
 </menu>
