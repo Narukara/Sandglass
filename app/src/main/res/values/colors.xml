@@ -5,4 +5,5 @@
     <color name="colorAccent">#03DAC5</color>
     <color name="dayColor">#fac661</color>
     <color name="nightColor">#454daf</color>
+    <color name="trans">#00000000</color>
 </resources>

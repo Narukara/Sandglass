@@ -9,18 +9,16 @@ import org.apache.poi.ss.usermodel.CellType;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.TimeZone;
 
 public abstract class Recorder {
 
     public static void commit(int id, long time) throws IOException {
-        File xls = new File(Pen.fileDir, getYear() + ".xls");
+        File xls = new File(Pen.fileDir, Tools.getYear() + ".xls");
         if (!xls.exists()) {
             initXLS(xls);
         }
-        time += (long) readXLS(xls, getMonth(), id + 1, getDate());
-        writeXLS(xls, getMonth(), id + 1, getDate(), String.valueOf(time));
+        time += (long) readXLS(xls, Tools.getMonth(), id + 1, Tools.getDate());
+        writeXLS(xls, Tools.getMonth(), id + 1, Tools.getDate(), String.valueOf(time));
     }
 
     public static void initXLS(File file) throws IOException {
@@ -67,21 +65,4 @@ public abstract class Recorder {
         }
     }
 
-    public static int getYear() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeZone(TimeZone.getDefault());
-        return calendar.get(Calendar.YEAR);
-    }
-
-    private static int getMonth() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeZone(TimeZone.getDefault());
-        return calendar.get(Calendar.MONTH);
-    }
-
-    private static int getDate() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeZone(TimeZone.getDefault());
-        return calendar.get(Calendar.DATE);
-    }
 }
