@@ -51,6 +51,7 @@ public abstract class Sandglass {
             throw new Exception("invalid id");
         }
         Sandglass.id = id;
+        Pen.write(Pen.cache, "id", String.valueOf(Sandglass.id));
     }
 
     public static void end() throws Exception {

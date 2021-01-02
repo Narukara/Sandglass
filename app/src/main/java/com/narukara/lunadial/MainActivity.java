@@ -251,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
                     stat();
                     break;
                 case R.id.about:
-                    Snackbar.make(findViewById(R.id.bg), "Hello! Sandglass 1.5.0 beta", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(findViewById(R.id.bg), "Hello! Sandglass 1.5.1 beta", Snackbar.LENGTH_LONG).show();
                     break;
             }
             return false;
