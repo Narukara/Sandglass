@@ -6,4 +6,5 @@
     <color name="dayColor">#fac661</color>
     <color name="nightColor">#454daf</color>
     <color name="trans">#00000000</color>
+    <color name="grey">#E8E8E8</color>
 </resources>

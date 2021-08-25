@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "artifactType": {
     "type": "APK",
     "kind": "Directory"
@@ -10,10 +10,8 @@
     {
       "type": "SINGLE",
       "filters": [],
-      "properties": [],
-      "versionCode": 7,
-      "versionName": "1.5.1beta",
-      "enabled": true,
+      "versionCode": 8,
+      "versionName": "1.6.0",
       "outputFile": "app-release.apk"
     }
   ]

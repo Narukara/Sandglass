@@ -3,15 +3,19 @@
     <string name="start">开始</string>
     <string name="stat">统计</string>
     <string name="end">结束</string>
-    <string name="stable">固有</string>
-    <string name="act">活动</string>
     <string name="sleep">就寝</string>
     <string name="eat">就餐</string>
-    <string name="clean">卫生</string>
+    <string name="clean">内务</string>
     <string name="study">学习</string>
     <string name="fun">娱乐</string>
     <string name="other">其他</string>
     <string name="channel_name">Sandglass</string>
     <string name="channel_description">Sandglass\'s channel</string>
     <string name="about">关于</string>
+    <string name="config">设置</string>
+    <string name="send_notification">发送通知</string>
+    <string name="allow_modify_type">允许在记录时修改类型</string>
+    <string name="allow_modify_time">允许在记录时修改时长</string>
+    <string name="no_use">没有用</string>
+    <string name="message1">提示：允许修改会削弱app的监督效果</string>
 </resources>
