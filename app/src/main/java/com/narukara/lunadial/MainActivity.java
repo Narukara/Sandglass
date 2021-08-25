@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             Snackbar.make(findViewById(R.id.bg), Tools.notNullMessage(e.getMessage()), Snackbar.LENGTH_LONG).show();
         }
+        SettingsActivity.loadSettings();
         createNotificationChannel();
     }
 
@@ -73,12 +74,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendNotification() {
+        if (!SettingsActivity.isAllowNotification()) {
+            return;
+        }
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelID)
                 .setSmallIcon(R.drawable.smallicon)
                 .setContentTitle(Sandglass.isRunning() ? Acts.getActName(Sandglass.getID()) : getString(R.string.app_name))
-                .setContentText("~ forget-me-not ~")
+                .setContentText("ヘ(￣ω￣ヘ)")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(PendingIntent.getActivity(this, 0, intent, 0))
                 .setOngoing(true);
@@ -205,6 +209,9 @@ public class MainActivity extends AppCompatActivity {
         if (!Sandglass.isRunning()) {
             return;
         }
+        if (!SettingsActivity.isAllowModifyType()) {
+            return;
+        }
         PopupMenu popupMenu = new PopupMenu(this, view);
         popupMenu.getMenuInflater().inflate(R.menu.startmenu, popupMenu.getMenu());
         popupMenu.setOnMenuItemClickListener(item -> {
@@ -251,8 +258,10 @@ public class MainActivity extends AppCompatActivity {
                     stat();
                     break;
                 case R.id.about:
-                    Snackbar.make(findViewById(R.id.bg), "Hello! Sandglass 1.5.1 beta", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(findViewById(R.id.bg), "Hello! Sandglass 1.6.0", Snackbar.LENGTH_LONG).show();
                     break;
+                case R.id.config:
+                    startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
             }
             return false;
         });

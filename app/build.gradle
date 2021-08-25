@@ -8,8 +8,8 @@ android {
         applicationId "com.narukara.lunadial"
         minSdkVersion 26
         targetSdkVersion 30
-        versionCode 7
-        versionName "1.5.1beta"
+        versionCode 8
+        versionName "1.6.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

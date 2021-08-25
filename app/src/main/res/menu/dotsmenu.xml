@@ -6,4 +6,7 @@
     <item
         android:title="@string/about"
         android:id="@+id/about" />
+    <item
+        android:title="@string/config"
+        android:id="@+id/config" />
 </menu>
